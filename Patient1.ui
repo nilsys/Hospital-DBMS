@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>597</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QTableWidget" name="InTable">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>70</y>
+      <width>621</width>
+      <height>111</height>
+     </rect>
+    </property>
+    <column>
+     <property name="text">
+      <string>PFname</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>PLname</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string> PPhone</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>EID_Doc</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>PID_In</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>TrID</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>TrStart</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>TrEnd</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>TrResult</string>
+     </property>
+    </column>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>50</y>
+      <width>47</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>InPatient</string>
+    </property>
+   </widget>
+   <widget class="QTableWidget" name="OutTable">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>250</y>
+      <width>621</width>
+      <height>101</height>
+     </rect>
+    </property>
+    <column>
+     <property name="text">
+      <string>PFname</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>PLname</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>PPhone</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>EID_Doc</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>PID_Out</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>ExID</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>ExDate</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>ExFee</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>ExDiagnosis</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>ExSencondExaminationDate</string>
+     </property>
+    </column>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>220</y>
+      <width>61</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>OutPatient</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

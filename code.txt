@@ -1,0 +1,171 @@
+dbms.py
+
+import cx_Oracle
+from datetime import datetime
+
+
+class HospitalOracle():
+    def __init__(self):
+        self.con = cx_Oracle.connect("system", "hung", "xe")
+        self.cur = self.con.cursor()
+        self.cur.execute('ALTER SESSION SET CURRENT_SCHEMA = HOSPITAL_ADMIN')
+
+    def searchPatient(self, PFNAME, PLNAME):
+        query = """SELECT PFNAME, PLNAME, PPHONE, EXDATE, EXFEE, EXDIAGNOSIS, EXSECONDEXAMINATIONDATE, TRSTART, TREND, TRRESULT FROM (SELECT PID, PFNAME, PLNAME, PPHONE, EXDATE, EXFEE, EXDIAGNOSIS, EXSECONDEXAMINATIONDATE, NULL AS TRSTART, NULL AS TREND, NULL AS TRRESULT
+            FROM PATIENT 
+            JOIN EXAMINATION ON PID=PID_OUT
+            UNION
+            SELECT PID, PFNAME, PLNAME, PPHONE, NULL AS EXDATE, NULL AS EXFEE, NULL AS EXDIAGNOSIS, NULL AS EXSECONDEXAMINATIONDATE, TRSTART, TREND, TRRESULT
+            FROM PATIENT
+            JOIN TREATMENT ON PID=PID_IN)
+            WHERE LTRIM(RTRIM(PFNAME))='""" + PFNAME + """'AND LTRIM(RTRIM(PLNAME))='""" + PLNAME + """'"""
+        print(query)
+        self.cur.execute(query)
+
+        # Store data fetched from cursor
+        storage = self.cur.fetchall()
+        # initialize variable
+        exDate = []
+        exFee = []
+        exDiagnosis = []
+        ex2Date = []
+        trStart = []
+        trEnd = []
+        trResult = []
+        pFname = ''
+        pLname = ''
+        pPhone = ''
+
+        # After fetching, number of rows would increase
+        if self.cur.rowcount != 0:
+            for pfname, plname, pphone, exdate, exfee, exdiagnosis, ex2date, trstart, trend, trresult in storage:
+                if pFname == '':
+                    pFname = pfname
+                if pLname == '':
+                    pLname = plname
+                if pPhone == '':
+                    pPhone = pphone
+                if exdate is not None:
+                    exDate.append(exdate.strftime('%m/%d/%Y'))
+                if exfee is not None:
+                    exFee.append(str(exfee))
+                if exdiagnosis is not None:
+                    exDiagnosis.append(exdiagnosis[1:])
+                if ex2date is not None:
+                    ex2Date.append(ex2date.strftime('%m/%d/%Y'))
+                if trstart is not None:
+                    trStart.append(trstart.strftime('%m/%d/%Y'))
+                if trend is not None:
+                    trEnd.append(trend.strftime('%m/%d/%Y'))
+                if trresult is not None:
+                    trResult.append(trresult)
+        return pFname, pLname, pPhone, exDate, exFee, exDiagnosis, ex2Date, trStart, trEnd, trResult
+
+
+main.py
+
+import sys
+from PyQt5 import QtCore, QtWidgets, uic, QtGui
+from PyQt5.QtWidgets import *
+from search import SearchApp
+
+qtCreatorFile = "test.ui"  # Enter file here.
+
+Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
+
+
+class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
+    def __init__(self):
+        QtWidgets.QMainWindow.__init__(self)
+        Ui_MainWindow.__init__(self)
+        self.setupUi(self)
+        self.username = "system"
+        self.password = "hung"
+        self.login = False
+        self.pushButton_Login.clicked.connect(self.checkValidInfo)
+        self.actionSearch.triggered.connect(self.openSearch)
+
+    def checkValidInfo(self):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        if (self.usernameLineEdit.text() == self.username
+                and self.passwordLineEdit.text() == self.password):
+            msg.setText("Log in successfully")
+            msg.setInformativeText("You are now able to query the database")
+            msg.setWindowTitle("Successfully")
+            msg.setStandardButtons(QMessageBox.Ok)
+            self.login = True
+        else:
+            msg.setText("Your username or password is incorrect")
+            msg.setWindowTitle("Failed")
+            msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()
+    
+    def openSearch(self):
+        self.search_window = SearchApp()
+        self.search_window.show()
+
+
+if __name__ == "__main__":
+    app = QtWidgets.QApplication(sys.argv)
+    window = MyApp()
+    window.show()
+    sys.exit(app.exec_())
+
+
+
+search.py
+
+import sys
+from PyQt5 import QtCore, QtWidgets, uic, QtGui
+from PyQt5.QtWidgets import *
+from dbs import HospitalOracle
+
+qtCreatorFile = "search.ui"  # Enter file here.
+
+Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
+
+
+class SearchApp(QtWidgets.QMainWindow, Ui_MainWindow):
+    def __init__(self):
+        QtWidgets.QMainWindow.__init__(self)
+        Ui_MainWindow.__init__(self)
+        self.setupUi(self)
+        self.hospitalOracle = HospitalOracle()
+        self.pushButtonSearch.clicked.connect(self.searchForInfo)
+
+    def searchForInfo(self):
+        # Get query from field
+        self.PFNAME = self.patientSFirstNameLineEdit.text().strip()
+        self.PLNAME = self.patientSLastNameLineEdit.text().strip()
+
+        # Execute function
+        pFname, pLname, pPhone, exDate, exFee, exDiagnosis, ex2Date, trStart, trEnd, trResult = self.hospitalOracle.searchPatient(
+            self.PFNAME, self.PLNAME)
+
+        # Update field
+        self.pSFNameLineEdit.setText(pFname)
+        self.pSLNameLineEdit.setText(pLname)
+        self.pSPNumberLineEdit.setText(pPhone)
+        self.examinationSDiagnosisLineEdit.setText(
+            'Not Found' if len(exDiagnosis) == 0 else ', '.join(
+                x for x in exDiagnosis))
+        self.examinationSFeeLineEdit.setText(
+            'Not Found' if len(exFee) == 0 else ', '.join(x for x in exFee))
+        self.examinationSSecondDateLineEdit.setText(
+            'Not Found' if len(ex2Date) == 0 else ', '.join(x
+                                                        for x in ex2Date))
+        self.examniationSDateLineEdit.setText(
+            'Not Found' if len(exDate) == 0 else ', '.join(x for x in exDate))
+        self.treatmentSStartDateLineEdit.setText(
+            'Not Found' if len(trStart) == 0 else ', '.join(x
+                                                            for x in trStart))
+        self.treatmentSEndDateLineEdit.setText(
+            'Not Found' if len(trEnd) == 0 else ', '.join(x for x in trEnd))
+        self.treatmentResultLineEdit.setText('Not Found' if len(trResult) ==
+                                             0 else ', '.join(
+                                                 x for x in trResult))
+
+
+
+QtWidgets.QTableWidgetItem(str(data))
